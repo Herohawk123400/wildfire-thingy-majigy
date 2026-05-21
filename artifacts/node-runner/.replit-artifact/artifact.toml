@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Node.js Runner"
+version = "1.0.0"
+id = "artifacts/node-runner"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 21251
+
+[services.development]
+run = "pnpm --filter @workspace/node-runner run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/node-runner", "run", "build" ]
+publicDir = "artifacts/node-runner/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "21251"
+BASE_PATH = "/"
