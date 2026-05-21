@@ -6,9 +6,9 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface Snippet {
-  id: number;
-  title: string;
+export interface CreateAppInput {
+  /** @minLength 1 */
+  name: string;
+  /** @minLength 1 */
   code: string;
-  createdAt: Date;
 }

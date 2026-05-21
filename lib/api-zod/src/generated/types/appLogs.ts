@@ -6,8 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface SnippetInput {
-  /** @minLength 1 */
-  title: string;
-  code: string;
+export interface AppLogs {
+  stdout: string;
+  stderr: string;
 }

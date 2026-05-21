@@ -1,109 +1,103 @@
 import React, { useState } from "react";
 import Editor from "@monaco-editor/react";
+import { useCreateApp, getListAppsQueryKey } from "@workspace/api-client-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Play, Save, Loader2 } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
-interface EditorPanelProps {
-  code: string;
-  onChange: (value: string) => void;
-  onRun: () => void;
-  onSave: (title: string) => void;
-  isRunning: boolean;
-}
+const STARTER_CODE = `import http from "http";
 
-export function EditorPanel({ code, onChange, onRun, onSave, isRunning }: EditorPanelProps) {
-  const [saveOpen, setSaveOpen] = useState(false);
-  const [title, setTitle] = useState("");
+const PORT = process.env.PORT;
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-      e.preventDefault();
-      onRun();
+const server = http.createServer((req, res) => {
+  res.writeHead(200, { "Content-Type": "text/plain" });
+  res.end("Hello from my Node.js server!\\n");
+});
+
+server.listen(PORT, () => {
+  console.log(\`Server running on port \${PORT}\`);
+});
+`;
+
+export function EditorPanel() {
+  const [name, setName] = useState("");
+  const [code, setCode] = useState(STARTER_CODE);
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  
+  const createApp = useCreateApp();
+
+  const handleDeploy = () => {
+    if (!name.trim()) {
+      toast({
+        title: "Name required",
+        description: "Please provide a name for your app before deploying.",
+        variant: "destructive"
+      });
+      return;
     }
-  };
 
-  const handleSave = () => {
-    if (!title.trim()) return;
-    onSave(title);
-    setSaveOpen(false);
-    setTitle("");
+    createApp.mutate(
+      { data: { name: name.trim(), code } },
+      {
+        onSuccess: () => {
+          setName("");
+          setCode(STARTER_CODE);
+          queryClient.invalidateQueries({ queryKey: getListAppsQueryKey() });
+          toast({
+            title: "App Deployed",
+            description: "Your app is starting up."
+          });
+        },
+        onError: (err) => {
+          toast({
+            title: "Deploy Failed",
+            description: err?.message || "Something went wrong.",
+            variant: "destructive"
+          });
+        }
+      }
+    );
   };
 
   return (
-    <div className="h-full flex flex-col bg-background" onKeyDown={handleKeyDown}>
-      <div className="h-12 border-b border-border flex items-center justify-between px-4 bg-card">
-        <div className="flex items-center gap-4">
-          <span className="text-sm font-medium text-muted-foreground">index.js</span>
+    <div className="flex flex-col h-full w-full bg-background border-r border-border">
+      <div className="p-4 border-b border-border flex items-center justify-between gap-4 bg-card">
+        <div className="flex-1 max-w-sm">
+          <Input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="App Name"
+            className="font-mono bg-background border-border rounded-none focus-visible:ring-1 focus-visible:ring-primary h-9"
+            data-testid="input-app-name"
+          />
         </div>
-        <div className="flex items-center gap-2">
-          <Dialog open={saveOpen} onOpenChange={setSaveOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="sm" className="h-8 border-border/50 hover:bg-secondary">
-                <Save className="w-4 h-4 mr-1.5" />
-                Save Snippet
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>Save Snippet</DialogTitle>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="title">Snippet Title</Label>
-                  <Input 
-                    id="title" 
-                    placeholder="e.g., Express server setup" 
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    autoFocus
-                    onKeyDown={(e) => e.key === 'Enter' && handleSave()}
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setSaveOpen(false)}>Cancel</Button>
-                <Button onClick={handleSave} disabled={!title.trim()}>Save</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-
-          <Button 
-            size="sm" 
-            className="h-8 bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
-            onClick={onRun}
-            disabled={isRunning}
-          >
-            {isRunning ? (
-              <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
-            ) : (
-              <Play className="w-4 h-4 mr-1.5" />
-            )}
-            Run
-            <span className="ml-2 text-[10px] opacity-60 border border-primary-foreground/20 rounded px-1 py-0.5">⌘↵</span>
-          </Button>
-        </div>
+        <Button 
+          onClick={handleDeploy} 
+          disabled={createApp.isPending}
+          className="rounded-none font-mono tracking-tight uppercase text-xs font-bold bg-primary text-primary-foreground hover:bg-primary/90"
+          data-testid="button-deploy"
+        >
+          {createApp.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
+          Deploy
+        </Button>
       </div>
-      <div className="flex-1 min-h-0 pt-2">
+      <div className="flex-1 w-full bg-[#1e1e1e]">
         <Editor
           height="100%"
           language="javascript"
           theme="vs-dark"
           value={code}
-          onChange={(val) => onChange(val || "")}
+          onChange={(val) => setCode(val || "")}
           options={{
             minimap: { enabled: false },
-            fontSize: 14,
-            fontFamily: "'JetBrains Mono', 'Fira Code', 'Menlo', monospace",
-            lineHeight: 1.5,
+            fontSize: 13,
+            fontFamily: "var(--app-font-mono)",
+            wordWrap: "on",
             padding: { top: 16 },
             scrollBeyondLastLine: false,
-            smoothScrolling: true,
-            cursorBlinking: "smooth",
-            cursorSmoothCaretAnimation: "on",
-            formatOnPaste: true,
           }}
         />
       </div>

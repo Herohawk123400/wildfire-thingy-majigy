@@ -20,12 +20,11 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  App,
+  AppLogs,
+  CreateAppInput,
   ErrorResponse,
-  HealthStatus,
-  RunInput,
-  RunResult,
-  Snippet,
-  SnippetInput
+  HealthStatus
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -49,7 +48,6 @@ export const getHealthCheckUrl = () => {
 }
 
 /**
- * Returns server health status
  * @summary Health check
  */
 export const healthCheck = async ( options?: RequestInit): Promise<HealthStatus> => {
@@ -118,92 +116,20 @@ export function useHealthCheck<TData = Awaited<ReturnType<typeof healthCheck>>, 
 
 
 
-export const getRunCodeUrl = () => {
+export const getListAppsUrl = () => {
 
 
 
 
-  return `/api/run`
+  return `/api/apps`
 }
 
 /**
- * Runs the provided Node.js code and returns stdout, stderr, and exit info
- * @summary Execute Node.js code
+ * @summary List all deployed apps
  */
-export const runCode = async (runInput: RunInput, options?: RequestInit): Promise<RunResult> => {
+export const listApps = async ( options?: RequestInit): Promise<App[]> => {
 
-  return customFetch<RunResult>(getRunCodeUrl(),
-  {
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      runInput,)
-  }
-);}
-
-
-
-
-export const getRunCodeMutationOptions = <TError = ErrorType<ErrorResponse>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof runCode>>, TError,{data: BodyType<RunInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof runCode>>, TError,{data: BodyType<RunInput>}, TContext> => {
-
-const mutationKey = ['runCode'];
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof runCode>>, {data: BodyType<RunInput>}> = (props) => {
-          const {data} = props ?? {};
-
-          return  runCode(data,requestOptions)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type RunCodeMutationResult = NonNullable<Awaited<ReturnType<typeof runCode>>>
-    export type RunCodeMutationBody = BodyType<RunInput>
-    export type RunCodeMutationError = ErrorType<ErrorResponse>
-
-    /**
- * @summary Execute Node.js code
- */
-export const useRunCode = <TError = ErrorType<ErrorResponse>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof runCode>>, TError,{data: BodyType<RunInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
- ): UseMutationResult<
-        Awaited<ReturnType<typeof runCode>>,
-        TError,
-        {data: BodyType<RunInput>},
-        TContext
-      > => {
-      return useMutation(getRunCodeMutationOptions(options));
-    }
-
-export const getListSnippetsUrl = () => {
-
-
-
-
-  return `/api/snippets`
-}
-
-/**
- * @summary List saved snippets
- */
-export const listSnippets = async ( options?: RequestInit): Promise<Snippet[]> => {
-
-  return customFetch<Snippet[]>(getListSnippetsUrl(),
+  return customFetch<App[]>(getListAppsUrl(),
   {
     ...options,
     method: 'GET'
@@ -216,45 +142,45 @@ export const listSnippets = async ( options?: RequestInit): Promise<Snippet[]> =
 
 
 
-export const getListSnippetsQueryKey = () => {
+export const getListAppsQueryKey = () => {
     return [
-    `/api/snippets`
+    `/api/apps`
     ] as const;
     }
 
 
-export const getListSnippetsQueryOptions = <TData = Awaited<ReturnType<typeof listSnippets>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listSnippets>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getListAppsQueryOptions = <TData = Awaited<ReturnType<typeof listApps>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listApps>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getListSnippetsQueryKey();
+  const queryKey =  queryOptions?.queryKey ?? getListAppsQueryKey();
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof listSnippets>>> = ({ signal }) => listSnippets({ signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listApps>>> = ({ signal }) => listApps({ signal, ...requestOptions });
 
 
 
 
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listSnippets>>, TError, TData> & { queryKey: QueryKey }
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listApps>>, TError, TData> & { queryKey: QueryKey }
 }
 
-export type ListSnippetsQueryResult = NonNullable<Awaited<ReturnType<typeof listSnippets>>>
-export type ListSnippetsQueryError = ErrorType<unknown>
+export type ListAppsQueryResult = NonNullable<Awaited<ReturnType<typeof listApps>>>
+export type ListAppsQueryError = ErrorType<unknown>
 
 
 /**
- * @summary List saved snippets
+ * @summary List all deployed apps
  */
 
-export function useListSnippets<TData = Awaited<ReturnType<typeof listSnippets>>, TError = ErrorType<unknown>>(
-  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listSnippets>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export function useListApps<TData = Awaited<ReturnType<typeof listApps>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listApps>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getListSnippetsQueryOptions(options)
+  const queryOptions = getListAppsQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
@@ -267,37 +193,37 @@ export function useListSnippets<TData = Awaited<ReturnType<typeof listSnippets>>
 
 
 
-export const getCreateSnippetUrl = () => {
+export const getCreateAppUrl = () => {
 
 
 
 
-  return `/api/snippets`
+  return `/api/apps`
 }
 
 /**
- * @summary Save a code snippet
+ * @summary Deploy a new Node.js app
  */
-export const createSnippet = async (snippetInput: SnippetInput, options?: RequestInit): Promise<Snippet> => {
+export const createApp = async (createAppInput: CreateAppInput, options?: RequestInit): Promise<App> => {
 
-  return customFetch<Snippet>(getCreateSnippetUrl(),
+  return customFetch<App>(getCreateAppUrl(),
   {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
-      snippetInput,)
+      createAppInput,)
   }
 );}
 
 
 
 
-export const getCreateSnippetMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createSnippet>>, TError,{data: BodyType<SnippetInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof createSnippet>>, TError,{data: BodyType<SnippetInput>}, TContext> => {
+export const getCreateAppMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createApp>>, TError,{data: BodyType<CreateAppInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createApp>>, TError,{data: BodyType<CreateAppInput>}, TContext> => {
 
-const mutationKey = ['createSnippet'];
+const mutationKey = ['createApp'];
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -307,10 +233,10 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createSnippet>>, {data: BodyType<SnippetInput>}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createApp>>, {data: BodyType<CreateAppInput>}> = (props) => {
           const {data} = props ?? {};
 
-          return  createSnippet(data,requestOptions)
+          return  createApp(data,requestOptions)
         }
 
 
@@ -320,38 +246,115 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
   return  { mutationFn, ...mutationOptions }}
 
-    export type CreateSnippetMutationResult = NonNullable<Awaited<ReturnType<typeof createSnippet>>>
-    export type CreateSnippetMutationBody = BodyType<SnippetInput>
-    export type CreateSnippetMutationError = ErrorType<unknown>
+    export type CreateAppMutationResult = NonNullable<Awaited<ReturnType<typeof createApp>>>
+    export type CreateAppMutationBody = BodyType<CreateAppInput>
+    export type CreateAppMutationError = ErrorType<ErrorResponse>
 
     /**
- * @summary Save a code snippet
+ * @summary Deploy a new Node.js app
  */
-export const useCreateSnippet = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createSnippet>>, TError,{data: BodyType<SnippetInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+export const useCreateApp = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createApp>>, TError,{data: BodyType<CreateAppInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
-        Awaited<ReturnType<typeof createSnippet>>,
+        Awaited<ReturnType<typeof createApp>>,
         TError,
-        {data: BodyType<SnippetInput>},
+        {data: BodyType<CreateAppInput>},
         TContext
       > => {
-      return useMutation(getCreateSnippetMutationOptions(options));
+      return useMutation(getCreateAppMutationOptions(options));
     }
 
-export const getDeleteSnippetUrl = (id: number,) => {
+export const getGetAppUrl = (id: string,) => {
 
 
 
 
-  return `/api/snippets/${id}`
+  return `/api/apps/${id}`
 }
 
 /**
- * @summary Delete a saved snippet
+ * @summary Get an app by ID
  */
-export const deleteSnippet = async (id: number, options?: RequestInit): Promise<void> => {
+export const getApp = async (id: string, options?: RequestInit): Promise<App> => {
 
-  return customFetch<void>(getDeleteSnippetUrl(id),
+  return customFetch<App>(getGetAppUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAppQueryKey = (id: string,) => {
+    return [
+    `/api/apps/${id}`
+    ] as const;
+    }
+
+
+export const getGetAppQueryOptions = <TData = Awaited<ReturnType<typeof getApp>>, TError = ErrorType<ErrorResponse>>(id: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getApp>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAppQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApp>>> = ({ signal }) => getApp(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApp>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAppQueryResult = NonNullable<Awaited<ReturnType<typeof getApp>>>
+export type GetAppQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Get an app by ID
+ */
+
+export function useGetApp<TData = Awaited<ReturnType<typeof getApp>>, TError = ErrorType<ErrorResponse>>(
+ id: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getApp>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAppQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getDeleteAppUrl = (id: string,) => {
+
+
+
+
+  return `/api/apps/${id}`
+}
+
+/**
+ * @summary Stop and delete an app
+ */
+export const deleteApp = async (id: string, options?: RequestInit): Promise<void> => {
+
+  return customFetch<void>(getDeleteAppUrl(id),
   {
     ...options,
     method: 'DELETE'
@@ -363,11 +366,11 @@ export const deleteSnippet = async (id: number, options?: RequestInit): Promise<
 
 
 
-export const getDeleteSnippetMutationOptions = <TError = ErrorType<ErrorResponse>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteSnippet>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof deleteSnippet>>, TError,{id: number}, TContext> => {
+export const getDeleteAppMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApp>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteApp>>, TError,{id: string}, TContext> => {
 
-const mutationKey = ['deleteSnippet'];
+const mutationKey = ['deleteApp'];
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -377,10 +380,10 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteSnippet>>, {id: number}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteApp>>, {id: string}> = (props) => {
           const {id} = props ?? {};
 
-          return  deleteSnippet(id,requestOptions)
+          return  deleteApp(id,requestOptions)
         }
 
 
@@ -390,21 +393,168 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
   return  { mutationFn, ...mutationOptions }}
 
-    export type DeleteSnippetMutationResult = NonNullable<Awaited<ReturnType<typeof deleteSnippet>>>
+    export type DeleteAppMutationResult = NonNullable<Awaited<ReturnType<typeof deleteApp>>>
 
-    export type DeleteSnippetMutationError = ErrorType<ErrorResponse>
+    export type DeleteAppMutationError = ErrorType<ErrorResponse>
 
     /**
- * @summary Delete a saved snippet
+ * @summary Stop and delete an app
  */
-export const useDeleteSnippet = <TError = ErrorType<ErrorResponse>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteSnippet>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+export const useDeleteApp = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApp>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
-        Awaited<ReturnType<typeof deleteSnippet>>,
+        Awaited<ReturnType<typeof deleteApp>>,
         TError,
-        {id: number},
+        {id: string},
         TContext
       > => {
-      return useMutation(getDeleteSnippetMutationOptions(options));
+      return useMutation(getDeleteAppMutationOptions(options));
     }
+
+export const getRestartAppUrl = (id: string,) => {
+
+
+
+
+  return `/api/apps/${id}/restart`
+}
+
+/**
+ * @summary Restart a deployed app
+ */
+export const restartApp = async (id: string, options?: RequestInit): Promise<App> => {
+
+  return customFetch<App>(getRestartAppUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getRestartAppMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof restartApp>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof restartApp>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['restartApp'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof restartApp>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  restartApp(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RestartAppMutationResult = NonNullable<Awaited<ReturnType<typeof restartApp>>>
+
+    export type RestartAppMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Restart a deployed app
+ */
+export const useRestartApp = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof restartApp>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof restartApp>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getRestartAppMutationOptions(options));
+    }
+
+export const getGetAppLogsUrl = (id: string,) => {
+
+
+
+
+  return `/api/apps/${id}/logs`
+}
+
+/**
+ * @summary Get recent logs for an app
+ */
+export const getAppLogs = async (id: string, options?: RequestInit): Promise<AppLogs> => {
+
+  return customFetch<AppLogs>(getGetAppLogsUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAppLogsQueryKey = (id: string,) => {
+    return [
+    `/api/apps/${id}/logs`
+    ] as const;
+    }
+
+
+export const getGetAppLogsQueryOptions = <TData = Awaited<ReturnType<typeof getAppLogs>>, TError = ErrorType<ErrorResponse>>(id: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAppLogs>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAppLogsQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAppLogs>>> = ({ signal }) => getAppLogs(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAppLogs>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAppLogsQueryResult = NonNullable<Awaited<ReturnType<typeof getAppLogs>>>
+export type GetAppLogsQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Get recent logs for an app
+ */
+
+export function useGetAppLogs<TData = Awaited<ReturnType<typeof getAppLogs>>, TError = ErrorType<ErrorResponse>>(
+ id: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAppLogs>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAppLogsQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
 

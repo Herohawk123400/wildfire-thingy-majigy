@@ -9,36 +9,36 @@ export interface HealthStatus {
   status: string;
 }
 
-export interface RunInput {
-  /** Node.js code to execute */
-  code: string;
-  /**
-     * Optional stdin input
-     * @nullable
-     */
-  stdin?: string | null;
-}
+export type AppStatus = typeof AppStatus[keyof typeof AppStatus];
 
-export interface RunResult {
-  stdout: string;
-  stderr: string;
-  /** @nullable */
-  exitCode: number | null;
-  executionTimeMs: number;
-  timedOut?: boolean;
-}
 
-export interface Snippet {
-  id: number;
-  title: string;
+export const AppStatus = {
+  starting: 'starting',
+  running: 'running',
+  stopped: 'stopped',
+  crashed: 'crashed',
+} as const;
+
+export interface App {
+  id: string;
+  name: string;
   code: string;
+  port: number;
+  status: AppStatus;
+  url: string;
   createdAt: string;
 }
 
-export interface SnippetInput {
+export interface CreateAppInput {
   /** @minLength 1 */
-  title: string;
+  name: string;
+  /** @minLength 1 */
   code: string;
+}
+
+export interface AppLogs {
+  stdout: string;
+  stderr: string;
 }
 
 export interface ErrorResponse {

@@ -9,7 +9,6 @@ import * as zod from 'zod';
 
 
 /**
- * Returns server health status
  * @summary Health check
  */
 export const HealthCheckResponse = zod.object({
@@ -18,52 +17,87 @@ export const HealthCheckResponse = zod.object({
 
 
 /**
- * Runs the provided Node.js code and returns stdout, stderr, and exit info
- * @summary Execute Node.js code
+ * @summary List all deployed apps
  */
-export const RunCodeBody = zod.object({
-  "code": zod.string().describe('Node.js code to execute'),
-  "stdin": zod.string().nullish().describe('Optional stdin input')
-})
-
-export const RunCodeResponse = zod.object({
-  "stdout": zod.string(),
-  "stderr": zod.string(),
-  "exitCode": zod.number().nullable(),
-  "executionTimeMs": zod.number(),
-  "timedOut": zod.boolean().optional()
-})
-
-
-/**
- * @summary List saved snippets
- */
-export const ListSnippetsResponseItem = zod.object({
-  "id": zod.number(),
-  "title": zod.string(),
+export const ListAppsResponseItem = zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
   "code": zod.string(),
+  "port": zod.number(),
+  "status": zod.enum(['starting', 'running', 'stopped', 'crashed']),
+  "url": zod.string(),
   "createdAt": zod.coerce.date()
 })
-export const ListSnippetsResponse = zod.array(ListSnippetsResponseItem)
+export const ListAppsResponse = zod.array(ListAppsResponseItem)
 
 
 /**
- * @summary Save a code snippet
+ * @summary Deploy a new Node.js app
  */
 
 
 
-export const CreateSnippetBody = zod.object({
-  "title": zod.string().min(1),
-  "code": zod.string()
+
+export const CreateAppBody = zod.object({
+  "name": zod.string().min(1),
+  "code": zod.string().min(1)
 })
 
 
 /**
- * @summary Delete a saved snippet
+ * @summary Get an app by ID
  */
-export const DeleteSnippetParams = zod.object({
-  "id": zod.coerce.number()
+export const GetAppParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const GetAppResponse = zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "code": zod.string(),
+  "port": zod.number(),
+  "status": zod.enum(['starting', 'running', 'stopped', 'crashed']),
+  "url": zod.string(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Stop and delete an app
+ */
+export const DeleteAppParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+
+/**
+ * @summary Restart a deployed app
+ */
+export const RestartAppParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const RestartAppResponse = zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "code": zod.string(),
+  "port": zod.number(),
+  "status": zod.enum(['starting', 'running', 'stopped', 'crashed']),
+  "url": zod.string(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Get recent logs for an app
+ */
+export const GetAppLogsParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const GetAppLogsResponse = zod.object({
+  "stdout": zod.string(),
+  "stderr": zod.string()
 })
 
 
