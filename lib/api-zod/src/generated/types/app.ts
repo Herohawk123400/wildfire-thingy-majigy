@@ -5,6 +5,7 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { AppRuntime } from './appRuntime';
 import type { AppStatus } from './appStatus';
 
 export interface App {
@@ -13,6 +14,7 @@ export interface App {
   code: string;
   port: number;
   status: AppStatus;
+  runtime: AppRuntime;
   url: string;
   createdAt: Date;
 }

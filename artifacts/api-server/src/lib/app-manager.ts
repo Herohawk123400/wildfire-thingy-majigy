@@ -1,15 +1,21 @@
 import { spawn, type ChildProcess } from "child_process";
 import { writeFileSync, mkdirSync } from "fs";
-import { join } from "path";
+import { join, resolve, dirname } from "path";
+import { fileURLToPath } from "url";
 import { tmpdir } from "os";
 import { db, appsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { logger } from "./logger";
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
 const APP_DIR = join(tmpdir(), "deployed-apps");
+const HTML_SERVER = resolve(__dirname, "html-server.mjs");
 const PORT_START = 4100;
 const PORT_END = 4200;
 const MAX_LOG_LINES = 500;
+
+type Runtime = "node" | "python" | "bun" | "html";
 
 interface RunningApp {
   process: ChildProcess;
@@ -48,31 +54,55 @@ export function getAppLogs(id: string): { stdout: string; stderr: string } {
   };
 }
 
-export async function startApp(id: string, code: string): Promise<number> {
-  // Stop existing process if any
+function spawnForRuntime(runtime: Runtime, file: string, port: number, dir: string) {
+  const env = { ...process.env, PORT: String(port), NODE_ENV: "production" };
+
+  switch (runtime) {
+    case "node":
+      return spawn("node", [file], { env, cwd: dir });
+
+    case "bun":
+      return spawn("bun", ["run", file], { env, cwd: dir });
+
+    case "python":
+      return spawn("python3", [file], { env: { ...env, PYTHONUNBUFFERED: "1" }, cwd: dir });
+
+    case "html":
+      return spawn("node", [HTML_SERVER], {
+        env: { ...env, HTML_FILE: file },
+        cwd: dir,
+      });
+
+    default:
+      throw new Error(`Unknown runtime: ${runtime}`);
+  }
+}
+
+function fileExtension(runtime: Runtime): string {
+  switch (runtime) {
+    case "node": return "app.mjs";
+    case "bun": return "app.ts";
+    case "python": return "app.py";
+    case "html": return "index.html";
+  }
+}
+
+export async function startApp(id: string, code: string, runtime: Runtime): Promise<number> {
   await stopApp(id);
 
   const port = allocatePort();
-
-  // Write code to temp file
   const dir = join(APP_DIR, id);
   mkdirSync(dir, { recursive: true });
-  const file = join(dir, "app.mjs");
+
+  const file = join(dir, fileExtension(runtime));
   writeFileSync(file, code, "utf-8");
 
   const stdoutLines: string[] = [];
   const stderrLines: string[] = [];
 
-  const child = spawn("node", [file], {
-    env: {
-      ...process.env,
-      PORT: String(port),
-      NODE_ENV: "production",
-    },
-    cwd: dir,
-  });
+  const child = spawnForRuntime(runtime, file, port, dir);
 
-  child.stdout.on("data", (chunk: Buffer) => {
+  child.stdout?.on("data", (chunk: Buffer) => {
     const lines = chunk.toString().split("\n").filter(Boolean);
     stdoutLines.push(...lines);
     if (stdoutLines.length > MAX_LOG_LINES) {
@@ -80,7 +110,7 @@ export async function startApp(id: string, code: string): Promise<number> {
     }
   });
 
-  child.stderr.on("data", (chunk: Buffer) => {
+  child.stderr?.on("data", (chunk: Buffer) => {
     const lines = chunk.toString().split("\n").filter(Boolean);
     stderrLines.push(...lines);
     if (stderrLines.length > MAX_LOG_LINES) {
@@ -102,8 +132,8 @@ export async function startApp(id: string, code: string): Promise<number> {
 
   running.set(id, { process: child, port, stdoutLines, stderrLines });
 
-  // Give the process a moment to start, then mark running
-  await new Promise((r) => setTimeout(r, 1000));
+  // Wait for process to start
+  await new Promise((r) => setTimeout(r, 1200));
 
   if (running.has(id)) {
     await db.update(appsTable).set({ status: "running", port }).where(eq(appsTable.id, id));

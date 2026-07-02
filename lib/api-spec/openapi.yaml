@@ -42,7 +42,7 @@ paths:
     post:
       operationId: createApp
       tags: [apps]
-      summary: Deploy a new Node.js app
+      summary: Deploy a new app
       requestBody:
         required: true
         content:
@@ -163,7 +163,7 @@ components:
           type: string
     App:
       type: object
-      required: [id, name, code, port, status, url, createdAt]
+      required: [id, name, code, port, status, runtime, url, createdAt]
       properties:
         id:
           type: string
@@ -176,6 +176,9 @@ components:
         status:
           type: string
           enum: [starting, running, stopped, crashed]
+        runtime:
+          type: string
+          enum: [node, python, bun, html]
         url:
           type: string
         createdAt:
@@ -183,7 +186,7 @@ components:
           format: date-time
     CreateAppInput:
       type: object
-      required: [name, code]
+      required: [name, code, runtime]
       properties:
         name:
           type: string
@@ -191,6 +194,9 @@ components:
         code:
           type: string
           minLength: 1
+        runtime:
+          type: string
+          enum: [node, python, bun, html]
     AppLogs:
       type: object
       required: [stdout, stderr]

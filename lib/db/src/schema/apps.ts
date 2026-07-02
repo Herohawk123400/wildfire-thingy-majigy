@@ -8,6 +8,7 @@ export const appsTable = pgTable("deployed_apps", {
   code: text("code").notNull(),
   port: integer("port").notNull(),
   status: text("status").notNull().default("starting"),
+  runtime: text("runtime").notNull().default("node"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

@@ -19,21 +19,43 @@ export const AppStatus = {
   crashed: 'crashed',
 } as const;
 
+export type AppRuntime = typeof AppRuntime[keyof typeof AppRuntime];
+
+
+export const AppRuntime = {
+  node: 'node',
+  python: 'python',
+  bun: 'bun',
+  html: 'html',
+} as const;
+
 export interface App {
   id: string;
   name: string;
   code: string;
   port: number;
   status: AppStatus;
+  runtime: AppRuntime;
   url: string;
   createdAt: string;
 }
+
+export type CreateAppInputRuntime = typeof CreateAppInputRuntime[keyof typeof CreateAppInputRuntime];
+
+
+export const CreateAppInputRuntime = {
+  node: 'node',
+  python: 'python',
+  bun: 'bun',
+  html: 'html',
+} as const;
 
 export interface CreateAppInput {
   /** @minLength 1 */
   name: string;
   /** @minLength 1 */
   code: string;
+  runtime: CreateAppInputRuntime;
 }
 
 export interface AppLogs {

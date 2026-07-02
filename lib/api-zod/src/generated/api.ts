@@ -25,6 +25,7 @@ export const ListAppsResponseItem = zod.object({
   "code": zod.string(),
   "port": zod.number(),
   "status": zod.enum(['starting', 'running', 'stopped', 'crashed']),
+  "runtime": zod.enum(['node', 'python', 'bun', 'html']),
   "url": zod.string(),
   "createdAt": zod.coerce.date()
 })
@@ -32,7 +33,7 @@ export const ListAppsResponse = zod.array(ListAppsResponseItem)
 
 
 /**
- * @summary Deploy a new Node.js app
+ * @summary Deploy a new app
  */
 
 
@@ -40,7 +41,8 @@ export const ListAppsResponse = zod.array(ListAppsResponseItem)
 
 export const CreateAppBody = zod.object({
   "name": zod.string().min(1),
-  "code": zod.string().min(1)
+  "code": zod.string().min(1),
+  "runtime": zod.enum(['node', 'python', 'bun', 'html'])
 })
 
 
@@ -57,6 +59,7 @@ export const GetAppResponse = zod.object({
   "code": zod.string(),
   "port": zod.number(),
   "status": zod.enum(['starting', 'running', 'stopped', 'crashed']),
+  "runtime": zod.enum(['node', 'python', 'bun', 'html']),
   "url": zod.string(),
   "createdAt": zod.coerce.date()
 })
@@ -83,6 +86,7 @@ export const RestartAppResponse = zod.object({
   "code": zod.string(),
   "port": zod.number(),
   "status": zod.enum(['starting', 'running', 'stopped', 'crashed']),
+  "runtime": zod.enum(['node', 'python', 'bun', 'html']),
   "url": zod.string(),
   "createdAt": zod.coerce.date()
 })

@@ -202,7 +202,7 @@ export const getCreateAppUrl = () => {
 }
 
 /**
- * @summary Deploy a new Node.js app
+ * @summary Deploy a new app
  */
 export const createApp = async (createAppInput: CreateAppInput, options?: RequestInit): Promise<App> => {
 
@@ -251,7 +251,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type CreateAppMutationError = ErrorType<ErrorResponse>
 
     /**
- * @summary Deploy a new Node.js app
+ * @summary Deploy a new app
  */
 export const useCreateApp = <TError = ErrorType<ErrorResponse>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createApp>>, TError,{data: BodyType<CreateAppInput>}, TContext>, request?: SecondParameter<typeof customFetch>}

@@ -5,10 +5,12 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { CreateAppInputRuntime } from './createAppInputRuntime';
 
 export interface CreateAppInput {
   /** @minLength 1 */
   name: string;
   /** @minLength 1 */
   code: string;
+  runtime: CreateAppInputRuntime;
 }

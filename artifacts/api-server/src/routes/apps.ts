@@ -25,16 +25,15 @@ router.post("/apps", async (req, res) => {
     return;
   }
 
-  const { name, code } = parsed.data;
+  const { name, code, runtime } = parsed.data;
   const id = randomUUID();
 
   const [app] = await db
     .insert(appsTable)
-    .values({ id, name, code, port: 0, status: "starting" })
+    .values({ id, name, code, port: 0, status: "starting", runtime })
     .returning();
 
-  // Start the process async — don't await so we can return immediately
-  startApp(id, code).catch((err) => {
+  startApp(id, code, runtime as "node" | "python" | "bun" | "html").catch((err) => {
     req.log.error({ err, id }, "Failed to start app");
     db.update(appsTable).set({ status: "crashed" }).where(eq(appsTable.id, id)).catch(() => {});
   });
@@ -90,7 +89,7 @@ router.post("/apps/:id/restart", async (req, res) => {
 
   await db.update(appsTable).set({ status: "starting" }).where(eq(appsTable.id, app.id));
 
-  startApp(app.id, app.code).catch((err) => {
+  startApp(app.id, app.code, app.runtime as "node" | "python" | "bun" | "html").catch((err) => {
     req.log.error({ err, id: app.id }, "Failed to restart app");
     db.update(appsTable).set({ status: "crashed" }).where(eq(appsTable.id, app.id)).catch(() => {});
   });

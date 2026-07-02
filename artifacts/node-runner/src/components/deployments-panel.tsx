@@ -34,6 +34,16 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
+function RuntimeBadge({ runtime }: { runtime?: string }) {
+  if (!runtime) return null;
+  
+  return (
+    <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-secondary text-secondary-foreground border border-border/50 uppercase">
+      {runtime}
+    </span>
+  );
+}
+
 function LogsModal({ appId, open, onOpenChange }: { appId: string, open: boolean, onOpenChange: (open: boolean) => void }) {
   const { data: logs, isLoading } = useGetAppLogs(appId, {
     query: {
@@ -148,7 +158,11 @@ export function DeploymentsPanel() {
               <div key={app.id} className="border border-border bg-card p-5 flex flex-col gap-4">
                 <div className="flex justify-between items-start">
                   <div>
-                    <h3 className="font-bold text-lg text-primary">{app.name}</h3>
+                    <div className="flex items-center gap-3">
+                      <h3 className="font-bold text-lg text-primary">{app.name}</h3>
+                      {/* @ts-ignore */}
+                      <RuntimeBadge runtime={app.runtime} />
+                    </div>
                     <div className="mt-2">
                       <StatusBadge status={app.status} />
                     </div>
@@ -161,7 +175,8 @@ export function DeploymentsPanel() {
                       className="text-primary hover:text-primary/80 hover:underline flex items-center gap-1.5 text-sm transition-colors"
                       data-testid={`link-app-url-${app.id}`}
                     >
-                      {app.url}
+                      {/* @ts-ignore */}
+                      {app.runtime === 'html' ? "Open Page" : app.url}
                       <ExternalLink className="w-3.5 h-3.5" />
                     </a>
                   )}
