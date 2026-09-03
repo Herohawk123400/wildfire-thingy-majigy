@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Wildfire Watch</title>
+    <meta
+      name="description"
+      content="Wildfire Watch — a clear environmental safety monitor for Juniper Ridge Park."
+    />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Primary navigation">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true" data-icon="flame"></div>
+          <div class="brand-copy">
+            <strong>Wildfire Watch</strong>
+            <span>FLL field system</span>
+          </div>
+        </div>
+        <div class="nav-label">Command view</div>
+        <nav class="nav-list">
+          <button class="nav-item active" type="button" data-target="overview">
+            <span data-icon="gauge" aria-hidden="true"></span><span>Overview</span>
+          </button>
+          <button class="nav-item" type="button" data-target="zones">
+            <span data-icon="map" aria-hidden="true"></span><span>Park zones</span>
+          </button>
+          <button class="nav-item" type="button" data-target="alerts">
+            <span data-icon="alert" aria-hidden="true"></span><span>Alerts</span>
+          </button>
+          <button class="nav-item" type="button" data-target="method">
+            <span data-icon="chart" aria-hidden="true"></span><span>Method</span>
+          </button>
+        </nav>
+        <div class="sidebar-foot">
+          <p>Built for explanation</p>
+          <strong>Team Emberline · FLL 2025</strong>
+          <span>Read the signal. Explain the choice. Keep people moving safely.</span>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div class="breadcrumb"><b>Operations</b> / Park conditions / Live board</div>
+          <div class="topbar-actions">
+            <div class="source-pill" id="source-pill">
+              <span class="source-dot"></span><span id="source-label">Demo stream</span>
+            </div>
+            <button class="button primary" id="refresh-button" type="button">
+              <span data-icon="refresh" aria-hidden="true"></span><span id="refresh-label">Refresh now</span>
+            </button>
+          </div>
+        </header>
+
+        <div class="content">
+          <section class="hero" id="overview">
+            <div>
+              <p class="eyebrow"><span class="eyebrow-line"></span>Environmental intelligence</p>
+              <h1>Know the park.<br /><em>Move with clarity.</em></h1>
+              <p class="hero-sub">
+                A clear read on heat, moisture, and smoke across
+                <strong>Juniper Ridge Park</strong> — designed to make a fast safety
+                conversation easier for students, mentors, and judges.
+              </p>
+            </div>
+            <div class="hero-note">
+              <div class="hero-note-top">
+                <span class="hero-note-label">Monitoring status</span>
+                <span class="status-signal"><span></span>Active</span>
+              </div>
+              <h2>All zones reporting</h2>
+              <p>
+                Four sensor channels are being checked every 18 seconds. Signals below
+                are intentionally easy to scan from across a pit table.
+              </p>
+            </div>
+          </section>
+
+          <section class="summary-grid" aria-label="Park summary">
+            <div class="summary-card" id="overall-risk-card">
+              <p class="card-kicker">Overall park risk estimate</p>
+              <div class="summary-row">
+                <div>
+                  <div class="risk-big"><span id="overall-risk">62</span><small>/ 100</small></div>
+                  <div class="risk-level" id="overall-status">
+                    <span class="level-dot"></span><span id="overall-status-label">Elevated conditions</span>
+                  </div>
+                </div>
+                <p class="summary-copy">Highest reading across four monitored zones. Use the signal, then review each zone below.</p>
+              </div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-icon"><span data-icon="thermometer" aria-hidden="true"></span></div>
+              <div class="metric-value" id="average-temperature">85°F</div>
+              <div class="metric-label">Park temperature average</div>
+              <div class="metric-meta"><span data-icon="dot" aria-hidden="true"></span><span>4 sensors online</span></div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-icon safe"><span data-icon="leaf" aria-hidden="true"></span></div>
+              <div class="metric-value" id="average-moisture">37%</div>
+              <div class="metric-label">Park moisture average</div>
+              <div class="metric-meta" id="moisture-meta"><span data-icon="dot" aria-hidden="true"></span><span>Dryness is a factor</span></div>
+            </div>
+          </section>
+
+          <section class="alerts-panel" id="alerts" aria-labelledby="alerts-title">
+            <div class="section-heading">
+              <div>
+                <h2 id="alerts-title">Safety signals</h2>
+                <p>Thresholds needing a closer look, not a prediction.</p>
+              </div>
+              <span class="source-pill" id="alert-count">4 active signals</span>
+            </div>
+            <div class="alert-list" id="alert-list"></div>
+          </section>
+
+          <section class="zones-section" id="zones" aria-labelledby="zones-title">
+            <div class="zones-header">
+              <div>
+                <h2 id="zones-title">Park zone readings</h2>
+                <p>Live inputs and the locally calculated risk score for each area.</p>
+              </div>
+              <span class="card-kicker">Updated <span id="last-updated"></span></span>
+            </div>
+            <div class="zone-grid" id="zone-grid"></div>
+          </section>
+
+          <section class="bottom-grid" id="method">
+            <div class="method-card">
+              <h2>How the estimate works</h2>
+              <p>
+                Wildfire Watch combines three readable signals into one educational
+                score. A higher number means more conditions deserve attention; it
+                does not declare that a fire exists.
+              </p>
+              <details>
+                <summary>View the transparent calculation <span data-icon="chevron" aria-hidden="true"></span></summary>
+                <div class="formula">
+                  temperature contribution · 35 points<br />
+                  dryness contribution · 35 points<br />
+                  smoke contribution · 30 points<br />
+                  <strong>score = temperature + dryness + smoke, capped at 100</strong>
+                </div>
+              </details>
+            </div>
+            <div class="monitor-card">
+              <h2>Board telemetry</h2>
+              <div class="monitor-row"><span>Data source</span><strong id="telemetry-source">DEMO READINGS</strong></div>
+              <div class="monitor-row"><span>Refresh cadence</span><strong>18 SECONDS</strong></div>
+              <div class="monitor-row"><span>Last scan</span><strong id="last-scan"></strong></div>
+              <button class="button" id="mode-button" type="button">
+                <span data-icon="wifi" aria-hidden="true"></span><span id="mode-label">Try Pi connection</span>
+              </button>
+            </div>
+          </section>
+
+          <footer class="footer-note">
+            <span data-icon="info" aria-hidden="true"></span>
+            <span><strong>Educational demonstration only.</strong> This risk estimate is not a real wildfire prediction system, emergency notification service, or substitute for local authorities.</span>
+          </footer>
+        </div>
+      </main>
+    </div>
+    <script src="./app.js"></script>
+  </body>
+</html>
