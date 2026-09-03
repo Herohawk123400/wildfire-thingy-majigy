@@ -1,0 +1,107 @@
+Build me a complete, polished, tablet-friendly wildfire safety monitoring web app for an FLL robotics project.
+
+The app is for monitoring wildfire risk in a park. It should have a clean, professional emergency-dashboard design that works especially well on an iPad, tablet, or phone.
+
+IMPORTANT: For now, create the app with realistic DEMO sensor data so it works immediately. Structure the code so that the Raspberry Pi Flask server can later replace the demo data through an API.
+
+The Raspberry Pi will provide sensor data for multiple locations/zones. Each zone should have:
+
+* Temperature
+* Moisture/wetness
+* Smoke level
+* Overall wildfire risk
+
+FEATURES:
+
+1. ZONE DASHBOARD
+   Show separate cards for Zone A, Zone B, Zone C, etc. Never mix sensor readings between zones.
+   Each card should clearly display:
+
+* Zone name
+* Temperature
+* Moisture
+* Smoke level
+* Risk status
+
+2. COLOR-CODED RISK
+   Use clear visual indicators:
+
+* Green = Safe
+* Yellow/orange = Warning
+* Red = High Risk / Fire Detected
+
+Make the status extremely easy to understand at a glance.
+
+3. EMERGENCY ALERTS
+   Create an alerts panel that displays warnings when:
+
+* Smoke becomes dangerously high
+* Temperature becomes dangerously high
+* Moisture becomes dangerously low
+* A zone reaches high wildfire risk
+
+Make serious alerts visually obvious.
+
+4. RASPBERRY PI API
+   Create a simple API integration layer that can fetch JSON sensor data from a Raspberry Pi Flask server.
+
+Assume the Raspberry Pi API will eventually return JSON similar to:
+
+{
+"zones": [
+{
+"id": "A",
+"temperature": 82,
+"moisture": 35,
+"smoke": 12
+},
+{
+"id": "B",
+"temperature": 91,
+"moisture": 18,
+"smoke": 75
+}
+]
+}
+
+Put the Raspberry Pi API URL in ONE easy-to-find configuration variable so it can later be changed to the real Raspberry Pi address.
+
+For development, if the Raspberry Pi is unavailable, automatically use demo sensor data instead so the dashboard still works.
+
+5. RISK CALCULATION
+   Create a simple transparent risk calculation based on temperature, moisture, and smoke. Clearly label it as an estimate/demo calculation, not a real wildfire prediction system.
+
+6. AUTO REFRESH
+   Refresh sensor data periodically so the dashboard can eventually show live Raspberry Pi readings.
+
+7. RESPONSIVE DESIGN
+   The entire interface must work well on:
+
+* iPad
+* Android tablets
+* Phones
+* Desktop computers
+
+Use large buttons, readable text, and cards that are easy to tap.
+
+8. VISUAL DESIGN
+   Make it look like a professional wildfire monitoring dashboard rather than a generic website.
+   Include:
+
+* A clear title
+* Park name placeholder
+* Current monitoring status
+* Zone cards
+* Emergency alerts
+* Last updated time
+* Overall park risk summary
+
+Do NOT overcomplicate it. Prioritize something that looks impressive and is easy to understand during an FLL presentation.
+
+9. DEMO MODE
+   Include obvious but professional demo sensor data that changes occasionally so we can demonstrate the alerts during the presentation.
+
+10. CODE QUALITY
+    Keep the project organized and explain in comments where the Raspberry Pi API connection is located and exactly what JSON format it expects.
+
+Build the working application now. Do not just give me an explanation or pseudocode—actually create the files and make the app runnable.

@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/wildfire-monitor/"
+title = "Wildfire Watch"
+description = "A tablet-friendly wildfire safety monitoring dashboard for an FLL robotics project, with realistic demo sensor data, zone risk summaries, emergency alerts, and a configurable Raspberry Pi API connection for future live readings."
+version = "1.0.0"
+id = "artifacts/wildfire-monitor"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/wildfire-monitor/" ]
+localPort = 23637
+
+[services.development]
+run = "pnpm --filter @workspace/wildfire-monitor run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/wildfire-monitor", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/wildfire-monitor/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "23637"
+BASE_PATH = "/wildfire-monitor/"
